@@ -124,7 +124,7 @@ void KAg(std::vector<G2>& pubKeyVec, G2& apk, std::vector<Fr>& aVec)
         }
 }
 
-
+//rewrite sign
 void Sign(std::vector<Fr>& sk, std::vector<G1>& sign,  const std::string& m) {
         const size_t n = sk.size();
         for (size_t i = 0; i < n; i++) {
@@ -133,6 +133,7 @@ void Sign(std::vector<Fr>& sk, std::vector<G1>& sign,  const std::string& m) {
 }
 
 //S = a1×S1 + a2×S2 + a3×S3 + + anxSn
+//rewrite multisig
 void MultiSign(std::vector<G1>& sign, G1& multisig, std::vector<Fr>& aVec) {
         const size_t n = sign.size();
         std::vector<G1> sign_new(n); // do not modify the original sign
