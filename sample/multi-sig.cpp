@@ -134,7 +134,7 @@ void Sign(std::vector<Fr>& sk, std::vector<G1>& sign,  const std::string& m) {
 
 //S = a1×S1 + a2×S2 + a3×S3 + + anxSn
 //rewrite multisig
-void MultiSign(std::vector<G1>& sign, G1& multisig, std::vector<Fr>& aVec) {
+void CombineSign(std::vector<G1>& sign, G1& multisig, std::vector<Fr>& aVec) {
         const size_t n = sign.size();
         std::vector<G1> sign_new(n); // do not modify the original sign
         for (size_t i = 0; i < n; i++) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 #if MDEBUG
         std::cout << "aggregate public key " << apk << std::endl;
 #endif
-        MultiSign(sign, multisig, a);
+        CombineSign(sign, multisig, a);
         ok = CoreVerify(multisig, Q, apk, m);
         std::cout << "verify " << (ok ? "ok" : "ng") << std::endl;
 }
