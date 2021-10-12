@@ -124,22 +124,22 @@ void KAg(std::vector<G2>& pubKeyVec, G2& apk, std::vector<Fr>& aVec)
         }
 }
 
-//rewrite sign
-void Sign(std::vector<Fr>& sk, std::vector<G1>& sign,  const std::string& m) {
+
+//rewrite sign to sign_with_a
+void Sign(std::vector<Fr>& sk, std::vector<G1>& sign_with_a,  std::vector<Fr>& aVec, const std::string& m) {
         const size_t n = sk.size();
         for (size_t i = 0; i < n; i++) {
-                CoreSign(sign[i], sk[i], m); // Si
+                CoreSign(sign_with_a[i], sk[i], m); // Si
+                G1::mul(sign_with_a[i],sign_with_a[i],aVec[i]); // aixSi
         }
 }
 
 //S = a1×S1 + a2×S2 + a3×S3 + + anxSn
 //rewrite multisig
-void CombineSign(std::vector<G1>& sign, G1& multisig, std::vector<Fr>& aVec) {
-        const size_t n = sign.size();
-        std::vector<G1> sign_new(n); // do not modify the original sign
+void Combine(std::vector<G1>& sign_with_a, G1& multisig) {
+        const size_t n = sign_with_a.size();
         for (size_t i = 0; i < n; i++) {
-                G1::mul(sign_new[i],sign[i],aVec[i]); // aixSi
-                G1::add(multisig,multisig,sign_new[i]); // S = 0 + a1×S1 + a2×S2 + a3×S3 + + anxSn .. S+0=S
+                G1::add(multisig,multisig,sign_with_a[i]); // S = 0 + a1×S1 + a2×S2 + a3×S3 + + anxSn .. S+0=S
         }
 }
 
@@ -178,11 +178,11 @@ int main(int argc, char *argv[])
                 KeyGen(sk[i], pubKeyPoint[i], Q); //private
          }
         KAg(pubKeyPoint,apk,a); // any can do it
-        Sign(sk,sign,m); // only owners of private keys can do this
+        Sign(sk,sign,a,m); // only owners of private keys can do this
 #if MDEBUG
         std::cout << "aggregate public key " << apk << std::endl;
 #endif
-        CombineSign(sign, multisig, a);
+        Combine(sign, multisig); // sign there is sign_with_a
         ok = CoreVerify(multisig, Q, apk, m);
         std::cout << "verify " << (ok ? "ok" : "ng") << std::endl;
 }
